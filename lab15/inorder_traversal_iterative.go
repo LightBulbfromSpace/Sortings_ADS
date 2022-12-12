@@ -16,7 +16,7 @@ func inorderTraversalIterative(root *structures.TreeNode) []int {
 	for true {
 
 		if initialNode.Left == nil && initialNode.Right == nil {
-			res = append(res, root.Val)
+			res = append(res, *root.Val)
 			break
 		}
 
@@ -25,7 +25,7 @@ func inorderTraversalIterative(root *structures.TreeNode) []int {
 			root = root.Left
 		}
 
-		res = append(res, root.Val)
+		res = append(res, *root.Val)
 
 		if root.Right != nil {
 			if root == initialNode {

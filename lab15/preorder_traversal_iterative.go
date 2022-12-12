@@ -12,7 +12,7 @@ func preorderTraversalIteravite(root *structures.TreeNode) []int {
 
 	for true {
 		if initialNode.Left == nil && initialNode.Right == nil {
-			res = append([]int{root.Val}, res...)
+			res = append([]int{*root.Val}, res...)
 			break
 		}
 
@@ -28,7 +28,7 @@ func preorderTraversalIteravite(root *structures.TreeNode) []int {
 
 		}
 
-		res = append([]int{root.Val}, res...)
+		res = append([]int{*root.Val}, res...)
 
 		if previosRoot.Right != nil {
 			previosRoot.Right = nil

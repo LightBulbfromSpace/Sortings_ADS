@@ -22,7 +22,7 @@ func InputTreeCLI(exp string) (*structures.TreeNode, error) {
 			if err != nil {
 				return nil, err
 			}
-			currentNode.Val = val
+			currentNode.Val = &val
 			exp = exp[len(res):]
 			continue
 		}
@@ -46,7 +46,9 @@ func OutputTreeCLI(node *structures.TreeNode) string {
 }
 
 func OutputTreeRecursion(node *structures.TreeNode, exp []string) []string {
-	exp = append(exp, strconv.Itoa(node.Val))
+	if node.Val != nil {
+		exp = append(exp, strconv.Itoa(*node.Val))
+	}
 	exp = append(exp, "(")
 	if node.Left != nil {
 		exp = OutputTreeRecursion(node.Left, exp)
