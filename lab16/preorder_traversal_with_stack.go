@@ -17,7 +17,9 @@ func PreorderTraversalStack(root *structures.TreeNode) string {
 			if root.Right != nil {
 				stack.Push(root.Right)
 			}
-			res.WriteString(fmt.Sprintf("%d, ", root.Val))
+			if root.Val != nil {
+				res.WriteString(fmt.Sprintf("%d, ", *root.Val))
+			}
 			root = root.Left
 		}
 	}
