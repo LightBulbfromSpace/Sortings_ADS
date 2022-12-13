@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+// PreorderTraversalStack - нерекурсивный обход дерева с помощью стека.
+// В стек складываются правые узлы. Алгоритм идет к самому левому узлу,
+// обратывая все проходимые узлы. Как только достугнут нулевой узел,
+// достается узел из стека. Все повторяется до тех пор, пока не будет достигнут
+// самый правый узел, то есть пока стек не пуст и обрабатываемый узел ненулевой.
 func PreorderTraversalStack(root *structures.TreeNode) string {
 	var res strings.Builder
 	stack := structures.Stack[*structures.TreeNode]{}
