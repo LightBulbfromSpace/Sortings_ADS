@@ -1,49 +1,34 @@
 package insertion_sort
 
-import "fmt"
-
-func InsertionSort(arr *[]int) (*[]int, error) {
-	lth := len(*arr)
-
-	for i := 1; i < lth; i++ {
-		if (*arr)[i-1] < (*arr)[i] {
-			continue
-		}
-		err := findPlace(arr, i)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return arr, nil
-}
-
-func findPlace(arr *[]int, index int) error {
-	for i := 0; i < index; i++ {
-		if (*arr)[i] > (*arr)[index] {
-			tmp := (*arr)[index]
-			err := shiftElements(arr, i, 1)
-			if err != nil {
-				return err
+func InsertionSort(arr []int) []int {
+	lenght := len(arr)
+	for i := 1; i < lenght; i++ {
+		j := i
+		for j > 0 {
+			if arr[j-1] > arr[j] {
+				arr[j], arr[j-1] = arr[j-1], arr[j]
+			} else {
+				break
 			}
-			(*arr)[i] = tmp
+			j--
 		}
 	}
-	return nil
+	return arr
 }
 
-func shiftElements(arr *[]int, index, offset int) error { // NEED TO BE FINISHED!!!
-	if (index+offset) > len(*arr) || index > len(*arr) {
-		return fmt.Errorf("index out of range")
+func insert(elem, index int, arr []int) []int {
+	arr = append(arr, 0)
+	for i := len(arr) - 1; i > index; i-- {
+		arr[i] = arr[i-1]
 	}
-	buff := 0
-	for i := index; i < len(*arr); i++ {
-		buff = (*arr)[i]
-		if i+offset < len(*arr) {
-			(*arr)[i+offset] = buff
-		}
-		if i+offset+1 < len(*arr) {
-			buff = (*arr)[i+offset+1]
-		}
+	arr[index] = elem
+	return arr
+}
+
+func pop(index int, arr []int) []int {
+	newLength := len(arr) - 1
+	for i := index; i < newLength; i++ {
+		arr[i] = arr[i+1]
 	}
-	return nil
+	return arr[:newLength]
 }

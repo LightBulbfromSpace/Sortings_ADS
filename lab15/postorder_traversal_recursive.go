@@ -10,7 +10,7 @@ func postorderTraversalRecusive(root *structures.TreeNode) []int {
 
 	res = append(res, postorderTraversalRecusive(root.Left)...)
 	res = append(res, postorderTraversalRecusive(root.Right)...)
-	res = append(res, root.Val)
+	res = append(res, *root.Val)
 
 	return res
 }

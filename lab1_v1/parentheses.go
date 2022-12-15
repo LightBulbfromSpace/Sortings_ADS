@@ -6,26 +6,26 @@ func ParenthesesCheck(exp string) bool {
 	stack := &structures.BracketsStack{}
 
 	for _, char := range exp {
-		if isCloseBracket(uint8(char)) {
+		if isCloseBracket(char) {
 			elem, err := stack.Pop()
 			if err != nil {
 				return false
 			}
-			if !isRightBrackets(elem, uint8(char)) {
+			if !isRightBrackets(elem, char) {
 				return false
 			}
 		} else {
-			stack.Push(uint8(char))
+			stack.Push(char)
 		}
 	}
 	return stack.IsEmpty()
 }
 
-func isCloseBracket(char uint8) bool {
+func isCloseBracket(char int32) bool {
 	return char == ')' || char == ']' || char == '}'
 }
 
-func isRightBrackets(openBracket, closeBracket uint8) bool {
+func isRightBrackets(openBracket, closeBracket int32) bool {
 	return openBracket == '(' && closeBracket == ')' ||
 		openBracket == '[' && closeBracket == ']' ||
 		openBracket == '{' && closeBracket == '}'

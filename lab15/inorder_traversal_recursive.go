@@ -8,7 +8,7 @@ func inorderTraversalRecursive(root *structures.TreeNode) []int {
 		return nil
 	}
 	res = append(res, inorderTraversalRecursive(root.Left)...)
-	res = append(res, root.Val)
+	res = append(res, *root.Val)
 	res = append(res, inorderTraversalRecursive(root.Right)...)
 	return res
 }

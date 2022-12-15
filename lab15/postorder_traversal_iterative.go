@@ -12,7 +12,7 @@ func postorderTraversalIteravite(root *structures.TreeNode) []int {
 
 	for true {
 		if initialNode.Left == nil && initialNode.Right == nil {
-			res = append(res, root.Val)
+			res = append(res, *root.Val)
 			break
 		}
 
@@ -28,7 +28,7 @@ func postorderTraversalIteravite(root *structures.TreeNode) []int {
 
 		}
 
-		res = append(res, root.Val)
+		res = append(res, *root.Val)
 
 		if previosRoot.Left != nil {
 			previosRoot.Left = nil

@@ -2,51 +2,62 @@ package insertion_sort
 
 import (
 	"fmt"
-	labtest "labs"
-	"reflect"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-/*func TestInserctionSort(t *testing.T) {
+func TestInserctionSort(t *testing.T) {
 	cases := []struct {
-		unsortedSlice *[]int
-		sortedSlice   *[]int
+		unsortedSlice []int
+		sortedSlice   []int
 	}{
-		{&[]int{1, 2, 3, 4}, &[]int{1, 2, 3, 4}},
-		{&[]int{-1, 4, 23, 12}, &[]int{-1, 4, 12, 23}},
-		{&[]int{5, 4, 3, 2, 1}, &[]int{1, 2, 3, 4, 5}},
-		{&[]int{1, 5, 3, 4}, &[]int{1, 3, 4, 5}},
+		{[]int{1, 2, 3, 4}, []int{1, 2, 3, 4}},
+		{[]int{-1, 4, 23, 12}, []int{-1, 4, 12, 23}},
+		{[]int{5, 4, 3, 2, 1}, []int{1, 2, 3, 4, 5}},
+		{[]int{5, 1, 2, 3, 4}, []int{1, 2, 3, 4, 5}},
+		{[]int{1, 5, 3, 4}, []int{1, 3, 4, 5}},
 	}
 	for i, tc := range cases {
-		t.Run(fmt.Sprintf("test #%d", i+1), func(t *testing.T) {
-			got, err := InsertionSort(tc.unsortedSlice)
-			labtest.AssertNoError(t, err)
-			if !reflect.DeepEqual(tc.sortedSlice, got) {
-				t.Errorf("got %v, but want %v", got, tc.sortedSlice)
-			}
+		t.Run(fmt.Sprintf("test #%d for %v", i+1, tc.unsortedSlice), func(t *testing.T) {
+			got := InsertionSort(tc.unsortedSlice)
+			assert.Equal(t, tc.sortedSlice, got)
 		})
 	}
-}*/
+}
 
-func TestShiftElements(t *testing.T) {
+func TestInsert(t *testing.T) {
 	cases := []struct {
-		initialSlice  *[]int
-		offset        int
-		index         int
-		expectedSlice *[]int
+		elem, index int
+		slice       []int
+		expected    []int
 	}{
-		{&[]int{1, 2, 3, 4, 5}, 1, 2, &[]int{1, 2, 0, 3, 4}},
-		{&[]int{-1, 4, 23, 12, 15, 17, 18}, 2, 1, &[]int{-1, 0, 0, 4, 23, 12, 15}},
-		{&[]int{5, 4, 3, 2, 1}, 4, 3, &[]int{5, 4, 3, 0, 0}},
-		{&[]int{1, 5, 3, 4}, 0, 2, &[]int{1, 5, 3, 4}},
+		{24, 0, []int{1, 2, 3, 4}, []int{24, 1, 2, 3, 4}},
+		{24, 1, []int{1, 2, 3, 4}, []int{1, 24, 2, 3, 4}},
+		{24, 3, []int{1, 2, 3, 4}, []int{1, 2, 3, 24, 4}},
+		{24, 4, []int{1, 2, 3, 4}, []int{1, 2, 3, 4, 24}},
 	}
 	for i, tc := range cases {
-		t.Run(fmt.Sprintf("test #%d", i+1), func(t *testing.T) {
-			err := shiftElements(tc.initialSlice, tc.index, tc.offset)
-			labtest.AssertNoError(t, err)
-			if !reflect.DeepEqual(tc.expectedSlice, tc.initialSlice) {
-				t.Errorf("got %v, but want %v", tc.initialSlice, tc.expectedSlice)
-			}
+		t.Run(fmt.Sprintf("test #%d for %v", i+1, tc.slice), func(t *testing.T) {
+			got := insert(tc.elem, tc.index, tc.slice)
+			assert.Equal(t, tc.expected, got)
+		})
+	}
+}
+
+func TestPop(t *testing.T) {
+	cases := []struct {
+		index    int
+		slice    []int
+		expected []int
+	}{
+		{0, []int{1, 2, 3, 4}, []int{2, 3, 4}},
+		{1, []int{1, 2, 3, 4}, []int{1, 3, 4}},
+		{3, []int{1, 2, 3, 4}, []int{1, 2, 3}},
+	}
+	for i, tc := range cases {
+		t.Run(fmt.Sprintf("test #%d for %v", i+1, tc.slice), func(t *testing.T) {
+			got := pop(tc.index, tc.slice)
+			assert.Equal(t, tc.expected, got)
 		})
 	}
 }
