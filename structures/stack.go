@@ -16,14 +16,14 @@ func (s *Stack[T]) Push(elem T) {
 	s.numOfItems++
 }
 
-func (s *Stack[T]) Pop() T {
+func (s *Stack[T]) Pop() (T, error) {
 	if s.numOfItems == 0 {
-		return getZero[T]()
+		return getZero[T](), errors.New("stack is empty")
 	}
 	s.numOfItems--
 	elem := s.data[s.numOfItems]
 	s.data = s.data[:s.numOfItems]
-	return elem
+	return elem, nil
 }
 
 func (s *Stack[T]) GetValueOfLastElement() (T, error) {
@@ -32,8 +32,6 @@ func (s *Stack[T]) GetValueOfLastElement() (T, error) {
 	}
 	return getZero[T](), errors.New("stack is empty")
 }
-
-
 
 type OperatorsStack struct {
 	BracketsStack
