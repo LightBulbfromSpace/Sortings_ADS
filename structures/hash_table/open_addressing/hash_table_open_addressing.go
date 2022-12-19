@@ -1,28 +1,21 @@
-package hash_table
+package open_addressing
 
 import (
 	"errors"
 )
 
-// HashTable - интерфейс реализации хеш-таблицы с любым типом данных
-type HashTable[T any] interface {
-	Search(value T) bool
-	Add(value T) error
-	Delete(value T)
-}
-
 // HashTableStrings - хеш-таблица строкового типа данных,
 // реализующая интерфейс хеш-таблицы.
 type HashTableStrings struct {
-	table            []*hastTableCell[string]
+	table            []*hashTableCell[string]
 	reservedCellsNum int
 	size             int
 	implicitResizing bool    // true - table can be resized automatically, false - only manually.
 	limitFillRatio   float32 // ratio of filling to call autoresizing, when implicitResizing is set to true
 }
 
-// hastTableCell - ячейка хеш-таблицы.
-type hastTableCell[T any] struct {
+// hashTableCell - ячейка хеш-таблицы.
+type hashTableCell[T any] struct {
 	value    T
 	reserved bool
 }
@@ -30,7 +23,7 @@ type hastTableCell[T any] struct {
 // NewHashTableStrings - инициализация строковой хеш-таблицы.
 func NewHashTableStrings(size int, implicitResizing bool, limitFillRatio float32) *HashTableStrings {
 	HTS := new(HashTableStrings)
-	HTS.table = make([]*hastTableCell[string], size)
+	HTS.table = make([]*hashTableCell[string], size)
 	HTS.size = size
 	HTS.implicitResizing = implicitResizing
 	HTS.limitFillRatio = limitFillRatio
@@ -116,20 +109,20 @@ func (HTS *HashTableStrings) setValue(exp string) error {
 		return err
 	}
 	if HTS.table[hash] == nil {
-		HTS.table[hash] = new(hastTableCell[string])
+		HTS.table[hash] = new(hashTableCell[string])
 	}
 	HTS.table[hash].setCellValue(exp)
 	return nil
 }
 
 // setCellValue устанавливает значение ячейки.
-func (cell *hastTableCell[T]) setCellValue(val T) {
+func (cell *hashTableCell[T]) setCellValue(val T) {
 	cell.value = val
 	cell.reserved = true
 }
 
 // unsetValue делает "мягкое удаление".
-func (cell *hastTableCell[T]) unsetValue() {
+func (cell *hashTableCell[T]) unsetValue() {
 	cell.reserved = false
 }
 
