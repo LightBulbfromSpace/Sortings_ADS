@@ -10,12 +10,23 @@ import (
 
 var opPriorities = map[string]int{
 	"(": 0,
+	"[": 0,
+	"{": 0,
 	"+": 1,
 	"-": 1,
 	"*": 2,
 	"/": 2,
 	"^": 3,
 	"~": 4,
+}
+
+var brackets = map[string]int{
+	"(": 0,
+	"[": 1,
+	"{": 2,
+	")": 3,
+	"]": 4,
+	"}": 5,
 }
 
 func toPolishNotation(exp string) ([]string, error) {
@@ -39,23 +50,31 @@ func toPolishNotation(exp string) ([]string, error) {
 			numStr.Reset()
 		}
 		// записываем открывающую скобку в стек
-		if ch == "(" {
+		if ind, ok := brackets[ch]; ok && ind < 3 {
 			operators.Push(ch)
 			continue
 		}
 		// если встретилась закрывающая скобка,
 		// все операторы выталкиваюся из стека до открывающей скобки
-		if ch == ")" {
+		if ind, ok := brackets[ch]; ok && ind > 2 {
+
 			var elem string
 			elem, err = operators.Pop()
-			for elem != "(" && err == nil {
+
+			_, ok := brackets[elem]
+			for !ok && err == nil {
 				result = append(result, elem)
 				elem, err = operators.Pop()
+				_, ok = brackets[elem]
+			}
+			if brackets[ch]-brackets[elem] != 3 {
+				return nil, errors.New("invalid brackets")
 			}
 			continue
 		}
 		// если минус унарный, то он заменяется на тильду
-		if ch == "-" && (i == 0 || ch == "(") {
+		index, ok := brackets[ch]
+		if ch == "-" && (i == 0 || ok && index < 3) {
 			operators.Push("~")
 			continue
 		}
@@ -68,7 +87,7 @@ func toPolishNotation(exp string) ([]string, error) {
 			}
 			if opPriorities[previosOp] >= opPriorities[ch] {
 				previosOp, err = operators.Pop()
-				if previosOp == "(" {
+				if ind, ok := brackets[previosOp]; ok && ind < 3 {
 					return nil, errors.New("wrong brackets")
 				}
 				result = append(result, previosOp)
@@ -140,6 +159,9 @@ func executeOperation(n1, n2 float64, op string) (float64, error) {
 	case "*":
 		return n1 * n2, nil
 	case "/":
+		if n2 == 0 {
+			return 0, errors.New("division by zero")
+		}
 		return n1 / n2, nil
 	case "^":
 		return math.Pow(n1, n2), nil
