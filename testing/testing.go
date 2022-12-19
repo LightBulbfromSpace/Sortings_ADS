@@ -41,3 +41,10 @@ func FailAfter(t testing.TB, d time.Duration, f func()) {
 	case <-done:
 	}
 }
+
+func WalkSlice[T any](s []T, f func(elem T)) {
+	length := len(s)
+	for i := 0; i < length; i++ {
+		f(s[i])
+	}
+}

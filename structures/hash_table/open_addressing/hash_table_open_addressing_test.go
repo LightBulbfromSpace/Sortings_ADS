@@ -1,7 +1,8 @@
-package hash_table
+package open_addressing
 
 import (
 	"github.com/stretchr/testify/assert"
+	test "labs/testing"
 	"testing"
 )
 
@@ -18,11 +19,11 @@ func TestHashTable(t *testing.T) {
 		"kwjehfowehf^*H%^GU",
 		"илывлды",
 	}
-	walkSlice[string](cases, func(elem string) {
+	test.WalkSlice[string](cases, func(elem string) {
 		found := hashTable.Search(elem)
 		assert.False(t, found)
 	})
-	walkSlice[string](cases, func(elem string) {
+	test.WalkSlice[string](cases, func(elem string) {
 		err := hashTable.Add(elem)
 		//fmt.Printf("%v\n", hashTable)
 		//for i := 0; i < hashTable.size; i++ {
@@ -31,14 +32,14 @@ func TestHashTable(t *testing.T) {
 		//}
 		assert.NoError(t, err, elem)
 	})
-	walkSlice[string](cases, func(elem string) {
+	test.WalkSlice[string](cases, func(elem string) {
 		found := hashTable.Search(elem)
 		assert.True(t, found)
 	})
-	walkSlice[string](cases, func(elem string) {
+	test.WalkSlice[string](cases, func(elem string) {
 		hashTable.Delete(elem)
 	})
-	walkSlice[string](cases, func(elem string) {
+	test.WalkSlice[string](cases, func(elem string) {
 		found := hashTable.Search(elem)
 		assert.False(t, found)
 	})
@@ -60,16 +61,9 @@ func TestImplicitResizing(t *testing.T) {
 		"kwjehfowehf^*H%^GU",
 		"илывлды",
 	}
-	walkSlice(cases, func(elem string) {
+	test.WalkSlice(cases, func(elem string) {
 		err := tbl.Add(elem)
 		assert.NoError(t, err, elem)
 	})
 	assert.Equal(t, 8, tbl.size, tbl.reservedCellsNum)
-}
-
-func walkSlice[T any](s []T, f func(elem T)) {
-	length := len(s)
-	for i := 0; i < length; i++ {
-		f(s[i])
-	}
 }
