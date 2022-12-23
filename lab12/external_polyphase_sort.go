@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+// Принцип работы ExternalPolyphaseSort: вводится максимально доступная
+// величина массива в качестве второго аргумента. Из файла с неотсортированными
+// числами считываются куски не длиннее maxSeqInRAM, преобразовываются в числа,
+// сортируются с помощью QuickSort. Каждая из последовательностей записывается в
+// новый файл.
+// Далее эти файлы постепенно сливаются в один с помощью mergeSortedSequencesInFiles
+// (с каждым проходом количество временных файлов уменьшается в 2 раза),
+// пока не останется один файл с результатом сортировки.
 func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, error) {
 
 	var tmpFiles []*os.File
@@ -37,6 +45,7 @@ func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, err
 		tmpFiles = append(tmpFiles, f)
 	}
 
+	// files' merge
 	numberOfTmpFiles := len(tmpFiles)
 	for numberOfTmpFiles > 1 {
 		var newFiles []*os.File
@@ -157,6 +166,8 @@ func createTmpFileName() string {
 	return fmt.Sprintf("tmp_%d.dat", rand.Int63())
 }
 
+// mergeSortedSequencesInFiles merges two files in one
+// with sorted data, uses principes of MergeSort
 func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, error) {
 	inputFile1.Seek(0, 0)
 	inputFile2.Seek(0, 0)
