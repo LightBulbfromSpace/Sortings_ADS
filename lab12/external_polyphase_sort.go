@@ -4,113 +4,43 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"math/rand"
 	"os"
 	"strconv"
 	"time"
 )
 
-//func ExternalPolyphaseSort(firstFile, secondFile, thirdFile io.ReadWriteSeeker) (io.ReadWriteSeeker, error) {
-//	var err error
-//	// true - end of file belongs to first file,
-//	// false - end of file belongs to second file
-//	var EOFofFirstFile bool
-//	for err != io.EOF {
-//		var seq1 []byte
-//		seq1, err = readSequence(firstFile)
-//		if err != nil {
-//			if err == io.EOF {
-//				EOFofFirstFile = true
-//				continue
-//			}
-//			return nil, err
-//		}
-//
-//		var seq2 []byte
-//		seq2, err = readSequence(secondFile)
-//		if err != nil {
-//			if err == io.EOF {
-//				EOFofFirstFile = false
-//				continue
-//			}
-//			return nil, err
-//		}
-//		seq := mergeSequences(seq1, seq2)
-//		_, err = thirdFile.Write(seq)
-//		if err != nil {
-//			return nil, err
-//		}
-//	}
-//	if EOFofFirstFile {
-//		for err != io.EOF {
-//
-//		}
-//	}
-//}
-
-//func Round(firstFile, secondFile, thirdFile io.ReadWriteSeeker) error {
-//	var nthFileisEmply int
-//	seq1, err := readSequence(firstFile)
-//	if err != nil {
-//		if err == io.EOF {
-//			nthFileisEmply = 1
-//		} else {
-//			return err
-//		}
-//	}
-//
-//	seq2, err := readSequence(secondFile)
-//	if err != nil {
-//		if err == io.EOF {
-//			nthFileisEmply = 2
-//		} else {
-//			return err
-//		}
-//	}
-//
-//	seq := mergeSequences(seq1, seq2)
-//	_, err = thirdFile.Write(seq)
-//	if err != nil {
-//		return err
-//	}
-//	return nil
-//}
-
-func cycle() {
-
-}
-
 func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, error) {
-	info, err := initialFile.Stat()
-	if err != nil {
-		return nil, err
-	}
-	initialFileSize := info.Size()
-	numberOfTmpFiles := int(math.Ceil(float64(initialFileSize) / float64(maxSeqInRAM)))
-	tmpFileSize := int(math.Ceil(float64(initialFileSize) / float64(numberOfTmpFiles)))
 
-	// create temporary files
-	tmpFiles, err := createNFiles(numberOfTmpFiles)
-	if err != nil {
-		return nil, err
-	}
+	var tmpFiles []*os.File
+
 	// divide information from initial file to several files
-	for _, f := range tmpFiles {
-		nums, err := readMaxAmountOfNums(initialFile, tmpFileSize)
-		if err != nil {
+	var err error
+	for err != io.EOF {
+		var nums *[]int
+		nums, err = readMaxAmountOfNums(initialFile, maxSeqInRAM)
+		if err != nil && err != io.EOF {
 			return nil, err
 		}
 		QuickSort(nums)
 
+		f, err := createTemporaryFile()
+		if err != nil {
+			return nil, err
+		}
+
 		_, err = f.Write(intsToBytesSlice(*nums...))
+		if err != nil {
+			return nil, err
+		}
 		f.Seek(0, 0)
+		tmpFiles = append(tmpFiles, f)
 	}
 
+	numberOfTmpFiles := len(tmpFiles)
 	for numberOfTmpFiles > 1 {
 		var newFiles []*os.File
 		for i := 0; i < (numberOfTmpFiles >> 1 << 1); i += 2 {
-
 			newFile, err := mergeSortedSequencesInFiles(tmpFiles[i], tmpFiles[i+1])
 			if err != nil {
 				return nil, err
@@ -118,6 +48,7 @@ func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, err
 
 			newFiles = append(newFiles, newFile)
 		}
+
 		if (numberOfTmpFiles & 1) == 1 {
 			newFile, err := createTemporaryFile()
 			if err != nil {
@@ -136,12 +67,15 @@ func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, err
 				return nil, err
 			}
 
+			fmt.Println(buffer)
+
 			_, err = newFile.Write(buffer)
 			if err != nil {
 				return nil, err
 			}
 			newFile.Seek(0, 0)
 		}
+
 		err = deleteFiles(tmpFiles)
 		if err != nil {
 			return nil, err
@@ -149,105 +83,6 @@ func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, err
 		tmpFiles = newFiles
 		numberOfTmpFiles = (numberOfTmpFiles & 1) + (numberOfTmpFiles >> 1)
 	}
-
-	//var tmpFiles []*os.File
-	//var deleteFuncs []func() error
-	//for i := 0; i < numberOfTmpFiles; i++ {
-	//	nums, err := readMaxAmountOfNums(initialFile, tmpFileSize)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	QuickSort(nums)
-	//
-	//	tmp, del, err := createTemporaryFile()
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	deleteFuncs = append(deleteFuncs, del)
-	//
-	//	bytes := intsToBytesSlice(*nums...)
-	//	_, err = tmp.Write(bytes)
-	//	tmp.Seek(0, 0)
-	//	//fmt.Printf("n = %d bytes = %q\n", n, bytes)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	tmp.Read(bytes)
-	//	fmt.Printf("bytes = %q f = %p\n", bytes, tmp)
-	//	tmp.Seek(0, 0)
-	//	tmpFiles = append(tmpFiles, tmp)
-	//	if i > 0 {
-	//		tmpFiles[i-1].Read(bytes)
-	//		fmt.Printf("bytes = %q f = %p\n", bytes, tmpFiles[i-1])
-	//	}
-	//}
-	//for _, f := range tmpFiles {
-	//	buffer := make([]byte, 15)
-	//	n, err := f.Read(buffer)
-	//	fmt.Printf("f = %p\n", f)
-	//	fmt.Println(n, err, buffer)
-	//}
-
-	// merge files into one decreasing number of files in two times with each interation
-	//for numberOfTmpFiles > 1 {
-	//	var deleteFuncs2 []func() error
-	//	var tmpFiles2 []*os.File
-	//	for i := 0; i < numberOfTmpFiles-1; i++ {
-	//		tmp, del, err := createTemporaryFile()
-	//		if err != nil {
-	//			return nil, err
-	//		}
-	//		deleteFuncs2 = append(deleteFuncs2, del)
-	//
-	//		tmp, err = mergeSortedSequencesInFiles(tmpFiles[i], tmpFiles[i+1], tmp)
-	//		if err != nil {
-	//			return nil, err
-	//		}
-	//		tmpFiles2 = append(tmpFiles2, tmp)
-	//	}
-	//	tmpFiles = tmpFiles2
-	//	//for _, del := range deleteFuncs {
-	//	//	err := del()
-	//	//	if err != nil {
-	//	//		return nil, err
-	//	//	}
-	//	//}
-	//	deleteFuncs = deleteFuncs2
-	//	fmt.Printf("numberOfTmpFiles = %d\n", numberOfTmpFiles)
-	//	numberOfTmpFiles /= 2
-	//	fmt.Printf("numberOfTmpFiles = %d\n", numberOfTmpFiles)
-	//}
-
-	//for numberOfTmpFiles > 1 {
-	//	var deleteFuncs2 []func() error
-	//	var tmpFiles2 []*os.File
-	//	for i := 0; i < numberOfTmpFiles-1; i++ {
-	//		tmp, del, err := createTemporaryFile()
-	//		if err != nil {
-	//			return nil, err
-	//		}
-	//		deleteFuncs2 = append(deleteFuncs2, del)
-	//
-	//		tmp, err = mergeSortedSequencesInFiles(tmpFiles[i], tmpFiles[i+1], tmp)
-	//		if err != nil {
-	//			return nil, err
-	//		}
-	//		tmpFiles2 = append(tmpFiles2, tmp)
-	//	}
-	//	fmt.Println(tmpFiles)
-	//	tmpFiles = tmpFiles2
-	//	fmt.Println(tmpFiles)
-	//	for _, del := range deleteFuncs {
-	//		err := del()
-	//		if err != nil {
-	//			return nil, err
-	//		}
-	//	}
-	//	deleteFuncs = deleteFuncs2
-	//	numberOfTmpFiles /= 2
-	//}
-	//initialFile.Seek(0, 0)
-	//mergeSortedSequencesInFiles(tmpFiles[0], tmpFiles[1], initialFile)
 	return tmpFiles[0], nil
 }
 
@@ -297,10 +132,13 @@ func readMaxAmountOfNums(file *os.File, maxLength int) (*[]int, error) {
 			return nil, errors.New("not enough memory: numbers in file are too big")
 		}
 		if err != nil {
-			if err == io.EOF {
-				return &nums, err
+			if err != io.EOF {
+				return nil, err
 			}
-			return nil, err
+			if nc > 0 {
+				nums = append(nums, *num)
+			}
+			return &nums, err
 		}
 		if n > maxLength {
 			file.Seek(-int64(nc), 1)
@@ -318,21 +156,6 @@ func createTmpFileName() string {
 	rand.Seed(time.Now().UnixNano())
 	return fmt.Sprintf("tmp_%d.dat", rand.Int63())
 }
-
-//func byteSlicetoIntSlice(bytes []byte) *[]int {
-//	var nums []int
-//	var num int
-//	for _, ch := range bytes {
-//		if ch > 47 || ch < 58 {
-//			num = num*10 + (int(ch) - 48)
-//		} else {
-//			nums = append(nums, num)
-//			num = 0
-//		}
-//	}
-//	fmt.Printf("nums = %q", nums)
-//	return &nums
-//}
 
 func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, error) {
 	inputFile1.Seek(0, 0)
@@ -359,6 +182,7 @@ func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, err
 
 		num2, read2, e := getNum(inputFile2)
 		read2Common += read2
+
 		if e != nil && e != io.EOF {
 			return nil, e
 		}
@@ -375,12 +199,10 @@ func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, err
 		var num int
 		if *num1 < *num2 {
 			num = *num1
-			//read1Common += read1
 			inputFile2.Seek(-int64(read2), 1)
 			read2Common -= read2
 		} else {
 			num = *num2
-			//read2Common += read2
 			inputFile1.Seek(-int64(read1), 1)
 			read1Common -= read1
 		}
@@ -389,97 +211,6 @@ func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, err
 	outputFile.Seek(0, 0)
 	return outputFile, nil
 }
-
-//func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, error) {
-//	inputFile1.Seek(0, 0)
-//	inputFile2.Seek(0, 0)
-//	outputFile, err := createTemporaryFile()
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	var (
-//		err1, err2               error
-//		read1Common, read2Common int
-//	)
-//	for err1 != io.EOF && err2 != io.EOF {
-//
-//		var (
-//			read1, read2 int
-//			n1, n2       *int
-//		)
-//
-//		n1, read1, err1 = getNum(inputFile1)
-//		if err1 != nil && err1 != io.EOF {
-//			return nil, err1
-//		}
-//		n2, read2, err2 = getNum(inputFile2)
-//		if err2 != nil && err2 != io.EOF {
-//			return nil, err2
-//		}
-//
-//		if n1 == nil {
-//			inputFile2.Seek(-int64(read2), 1)
-//			read2Common -= read2
-//			break
-//		}
-//
-//		if n2 == nil {
-//			inputFile1.Seek(-int64(read1), 1)
-//			read1Common -= read1
-//			break
-//		}
-//
-//		var num int
-//		if *n1 < *n2 {
-//			num = *n1
-//			read1Common += read1
-//			inputFile2.Seek(-int64(read2), 1)
-//			read2Common -= read2
-//		} else {
-//			num = *n2
-//			read2Common += read2
-//			inputFile1.Seek(-int64(read1), 1)
-//			read1Common -= read1
-//		}
-//
-//		written, e := outputFile.Write(intsToBytesSlice(num))
-//		if e != nil {
-//			return nil, e
-//		}
-//		fmt.Printf("written = %d\n", written)
-//	}
-//
-//	if err1 != io.EOF {
-//		inputFile1Info, _ := inputFile1.Stat()
-//		buffer := make([]byte, inputFile1Info.Size()-int64(read1Common))
-//		_, e := inputFile1.Read(buffer)
-//		if e != nil {
-//			return nil, err
-//		}
-//
-//		_, e = outputFile.Write(buffer)
-//		if e != nil {
-//			return nil, err
-//		}
-//	}
-//
-//	if err2 != io.EOF {
-//		inputFile2Info, _ := inputFile2.Stat()
-//		buffer := make([]byte, inputFile2Info.Size()-int64(read2Common))
-//		_, e := inputFile2.Read(buffer)
-//		if e != nil {
-//			return nil, err
-//		}
-//
-//		_, e = outputFile.Write(buffer)
-//		if e != nil {
-//			return nil, err
-//		}
-//	}
-//	outputFile.Seek(0, 0)
-//	return outputFile, nil
-//}
 
 func intsToBytesSlice(nums ...int) (result []byte) {
 	for _, n := range nums {

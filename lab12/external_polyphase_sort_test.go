@@ -8,41 +8,6 @@ import (
 	"testing"
 )
 
-//func TestExternalPolyphaseSort(t *testing.T) {
-//	cases := []struct{
-//		testFileSystems *fstest.MapFS
-//		result *fstest.MapFile
-//	}{
-//		{
-//			&fstest.MapFS{
-//				"a.txt" : &fstest.MapFile{Data: []byte("4 1 85 23 45 56 78 2 3 2 1 43")},
-//				"b.txt" : &fstest.MapFile{Data: []byte("7 3342 2341 34 1 234 67 3423 4556 76553")},
-//				"c.txt" : &fstest.MapFile{},
-//			},
-//			&fstest.MapFile{Data: []byte("1 1 1 2 2 3 4 7 23 34 45 56 67 85 ...")},
-//		},
-//
-//		{
-//			&fstest.MapFS{
-//			"a.txt" : &fstest.MapFile{Data: []byte("4 1 85  2  43")},
-//			"b.txt" : &fstest.MapFile{Data: []byte("7 3342 2341 34 1")},
-//			"c.txt" : &fstest.MapFile{},
-//			},
-//			&fstest.MapFile{Data: []byte("1 1 2 4 7 34 43 85 2341 3342")},
-//		},
-//	}
-//	for i, tc := range cases {
-//		t.Run(fmt.Sprintf("test #%d", i), func(t *testing.T) {
-//			f1, _ := os.Open("a.txt")
-//			f2, _ := os.Open("b.txt")
-//			f3, _ := os.Open("c.txt")
-//			got, err := ExternalPolyphaseSort(f1, f2, f3)
-//			assert.NoError(t, err)
-//			assert.Equal(t, *tc.result, got)
-//		})
-//	}
-//}
-
 type file struct {
 	name string
 	data string
@@ -52,46 +17,46 @@ type testFilesystem struct {
 	result *file
 }
 
-//func TestExternalPolyphaseSort(t *testing.T) {
-//
-//	cases := []struct {
-//		initialFile file
-//		maxMemory   int
-//		expected    string
-//	}{
-//		//{
-//		//	file{"a.dat", "4 1 85 2 43"},
-//		//	3,
-//		//	"1 2 4 85 1 43",
-//		//},
-//		{
-//			file{"b.dat", "7 64 53454 545 97 124 827 3342 2341 34 1"},
-//			12,
-//			"1 7 34 64 97 124 545 827 2341 3342 53454",
-//		},
-//	}
-//	for i, tc := range cases {
-//		t.Run(fmt.Sprintf("test #%d", i+1), func(t *testing.T) {
-//			tmp, err, rm := createTmpFile(&tc.initialFile)
-//
-//			defer rm()
-//
-//			got, err := ExternalPolyphaseSort(tmp, tc.maxMemory)
-//			if err != nil && err != io.EOF {
-//				t.Errorf("unexpected error: %q", err)
-//			}
-//
-//			//fmt.Println(len(got))
-//
-//			buffer := make([]byte, len(tc.expected))
-//			got.Seek(0, 0)
-//			n, err := got.Read(buffer)
-//			fmt.Println(n, err)
-//
-//			assert.Equal(t, tc.expected, string(buffer))
-//		})
-//	}
-//}
+func TestExternalPolyphaseSort(t *testing.T) {
+
+	cases := []struct {
+		initialFile file
+		maxMemory   int
+		expected    string
+	}{
+		{
+			file{"a.dat", "4 1 85 2 43"},
+			3,
+			"1 2 4 43 85",
+		},
+		{
+			file{"b.txt", "7 64 53454 545 97 124 827 3342 2341 34 1"},
+			12,
+			"1 7 34 64 97 124 545 827 2341 3342 53454",
+		},
+	}
+	for i, tc := range cases {
+		t.Run(fmt.Sprintf("test #%d", i+1), func(t *testing.T) {
+			tmp, err, rm := createTmpFile(&tc.initialFile)
+
+			defer rm()
+
+			got, err := ExternalPolyphaseSort(tmp, tc.maxMemory)
+			if err != nil {
+				t.Errorf("unexpected error: %q", err)
+			}
+
+			buffer := make([]byte, len(tc.expected))
+			got.Seek(0, 0)
+			_, err = got.Read(buffer)
+			assert.NoError(t, err)
+
+			assert.Equal(t, tc.expected, string(buffer))
+
+			os.Remove(got.Name())
+		})
+	}
+}
 
 func TestCreateAndDeleteNFiles(t *testing.T) {
 	tmpFiles, err := createNFiles(5)
@@ -163,15 +128,14 @@ func TestReadMaxAmountOfNums(t *testing.T) {
 		})
 	}
 	t.Run("the second reading from file", func(t *testing.T) {
-		tmp, err, rm := createTmpFile(&cases[1].initialFile)
+		tmp, err, rm := createTmpFile(&cases[0].initialFile)
 		assert.NoError(t, err)
 		defer rm()
 
-		readMaxAmountOfNums(tmp, cases[1].maxMemory)
-		nums, err := readMaxAmountOfNums(tmp, 11)
-		assert.NoError(t, err)
+		readMaxAmountOfNums(tmp, cases[0].maxMemory)
+		nums, _ := readMaxAmountOfNums(tmp, 18)
 
-		assert.Equal(t, []int{53454, 545}, *nums)
+		assert.Equal(t, []int{85, 2, 43}, *nums)
 	})
 }
 
