@@ -52,48 +52,88 @@ type testFilesystem struct {
 	result *file
 }
 
-func TestExternalPolyphaseSort(t *testing.T) {
+//func TestExternalPolyphaseSort(t *testing.T) {
+//
+//	cases := []struct {
+//		initialFile file
+//		maxMemory   int
+//		expected    string
+//	}{
+//		//{
+//		//	file{"a.dat", "4 1 85 2 43"},
+//		//	3,
+//		//	"1 2 4 85 1 43",
+//		//},
+//		{
+//			file{"b.dat", "7 64 53454 545 97 124 827 3342 2341 34 1"},
+//			12,
+//			"1 7 34 64 97 124 545 827 2341 3342 53454",
+//		},
+//	}
+//	for i, tc := range cases {
+//		t.Run(fmt.Sprintf("test #%d", i+1), func(t *testing.T) {
+//			tmp, err, rm := createTmpFile(&tc.initialFile)
+//
+//			defer rm()
+//
+//			got, err := ExternalPolyphaseSort(tmp, tc.maxMemory)
+//			if err != nil && err != io.EOF {
+//				t.Errorf("unexpected error: %q", err)
+//			}
+//
+//			//fmt.Println(len(got))
+//
+//			buffer := make([]byte, len(tc.expected))
+//			got.Seek(0, 0)
+//			n, err := got.Read(buffer)
+//			fmt.Println(n, err)
+//
+//			assert.Equal(t, tc.expected, string(buffer))
+//		})
+//	}
+//}
 
-	cases := []struct {
-		initialFile file
-		maxMemory   int
-		expected    string
-	}{
-		//{
-		//	file{"a.dat", "4 1 85 2 43"},
-		//	3,
-		//	"1 2 4 85 1 43",
-		//},
-		{
-			file{"b.dat", "7 64 53454 545 97 124 827 3342 2341 34 1"},
-			12,
-			"1 7 34 64 97 124 545 827 2341 3342 53454",
-		},
+func TestCreateAndDeleteNFiles(t *testing.T) {
+	tmpFiles, err := createNFiles(5)
+	assert.NoError(t, err)
+
+	err = deleteFiles(tmpFiles)
+	assert.NoError(t, err)
+}
+
+func TestCreateTmpFileName(t *testing.T) {
+	var names []string
+	nNames := 10
+	for i := 0; i < nNames; i++ {
+		names = append(names, createTmpFileName())
 	}
-	for i, tc := range cases {
-		t.Run(fmt.Sprintf("test #%d", i+1), func(t *testing.T) {
-			tmp, err, rm := createTmpFile(&tc.initialFile)
-
-			defer rm()
-
-			got, err := ExternalPolyphaseSort(tmp, tc.maxMemory)
-			if err != nil && err != io.EOF {
-				t.Errorf("unexpected error: %q", err)
-			}
-
-			//fmt.Println(len(got))
-
-			buffer := make([]byte, len(tc.expected))
-			got.Seek(0, 0)
-			n, _ := got.Read(buffer)
-			fmt.Println(n)
-
-			assert.Equal(t, tc.expected, string(buffer))
-		})
+	for i := 0; i < nNames-1; i++ {
+		for j := i + 1; j < nNames; j++ {
+			assert.NotEqual(t, names[i], names[j])
+		}
 	}
 }
 
 func TestReadMaxAmountOfNums(t *testing.T) {
+	t.Run("too large number", func(t *testing.T) {
+		_case := struct {
+			initialFile file
+			maxMemory   int
+			expected    *[]int
+		}{
+			file{"b.dat", "764534124 827 3342 2341 34 1"},
+			8,
+			&[]int{},
+		}
+
+		tmp, err, rm := createTmpFile(&_case.initialFile)
+		assert.NoError(t, err)
+		defer rm()
+
+		_, err = readMaxAmountOfNums(tmp, _case.maxMemory)
+		assert.Error(t, err)
+
+	})
 	cases := []struct {
 		initialFile file
 		maxMemory   int
@@ -106,8 +146,8 @@ func TestReadMaxAmountOfNums(t *testing.T) {
 		},
 		{
 			file{"b.dat", "7 64 53454 545 97 124 827 3342 2341 34 1"},
-			8,
-			&[]int{7, 64, 53454},
+			9,
+			&[]int{7, 64},
 		},
 	}
 	for i, tc := range cases {
@@ -122,6 +162,17 @@ func TestReadMaxAmountOfNums(t *testing.T) {
 			assert.Equal(t, tc.expected, nums)
 		})
 	}
+	t.Run("the second reading from file", func(t *testing.T) {
+		tmp, err, rm := createTmpFile(&cases[1].initialFile)
+		assert.NoError(t, err)
+		defer rm()
+
+		readMaxAmountOfNums(tmp, cases[1].maxMemory)
+		nums, err := readMaxAmountOfNums(tmp, 11)
+		assert.NoError(t, err)
+
+		assert.Equal(t, []int{53454, 545}, *nums)
+	})
 }
 
 func TestMergeSortedsequencesInFiles(t *testing.T) {
@@ -134,25 +185,42 @@ func TestMergeSortedsequencesInFiles(t *testing.T) {
 			},
 			&file{"c.dat", "1 1 2 4 7 34 43 85 87 2347 3342"},
 		},
+		{
+			[]*file{
+				&file{"a.dat", "1 2 4 43 85 87 234219 699999 "},
+				&file{"b.dat", "1 7 34 2347 3342 "},
+				&file{"c.dat", ""},
+			},
+			&file{"c.dat", "1 1 2 4 7 34 43 85 87 2347 3342 234219 699999"},
+		},
+		{
+			[]*file{
+				&file{"a.dat", "1 2 4 43 87 699999 "},
+				&file{"b.dat", "1 7 34 2347 3342 943843"},
+				&file{"c.dat", ""},
+			},
+			&file{"c.dat", "1 1 2 4 7 34 43 87 2347 3342 699999 943843"},
+		},
 	}
 	for i, fs := range cases {
 		t.Run(fmt.Sprintf("test for #%d", i+1), func(t *testing.T) {
-			tmps, result, delFuncs, err := createAllTmpFiles(fs)
+			tmps, _, delFuncs, err := createAllTmpFiles(fs)
 			assert.NoError(t, err)
 
-			got, err := mergeSortedSequencesInFiles(tmps[0], tmps[1], result)
+			got, err := mergeSortedSequencesInFiles(tmps[0], tmps[1])
 			assert.NoError(t, err)
 
 			buffer := make([]byte, len(fs.result.data))
 			got.Seek(0, 0)
 			got.Read(buffer)
-			//assert.NoError(t, err)
 
 			assert.Equal(t, fs.result.data, string(buffer))
 
 			for _, rm := range delFuncs {
 				rm()
 			}
+
+			os.Remove(got.Name())
 		})
 	}
 }
@@ -247,7 +315,7 @@ func TestGetNum(t *testing.T) {
 				t.Errorf("unexpected error: %q", err)
 			}
 
-			assert.Equal(t, tc.result, got)
+			assert.Equal(t, tc.result, *got)
 		})
 	}
 }
