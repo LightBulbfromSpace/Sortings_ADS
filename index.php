@@ -10,7 +10,7 @@ function main()
 	foreach ($arrs as $arr)
 	{
 		//heapSort($arr, count($arr));
-		mergeSort($arr, 0, count($arr));
+		mergeSort($arr, true);
 		//quickSort($arr, 0, count($arr) - 1, true);
 		echo'<pre>';
 		var_dump($arr);
