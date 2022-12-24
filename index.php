@@ -9,9 +9,9 @@ function main()
 	$arrs[] = [200, 33, 12, 6, 55, 77, 88, 66, 100, 99, 10, 9, 2, 1];
 	foreach ($arrs as $arr)
 	{
-		heapSort($arr, count($arr));
-		//mergeSort($arr, 0, count($arr));
-		//quickSort($arr, 0, count($arr) - 1);
+		//heapSort($arr, count($arr));
+		mergeSort($arr, 0, count($arr));
+		//quickSort($arr, 0, count($arr) - 1, true);
 		echo'<pre>';
 		var_dump($arr);
 		echo'</pre>';
