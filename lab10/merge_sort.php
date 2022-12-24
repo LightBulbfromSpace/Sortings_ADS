@@ -3,20 +3,34 @@
 require_once ROOT . '/boot.php';
 
 // mergeSort - сортировка слиянием
+// $type = false - mergeSortRecursive, $type = true - mergeSortIterative
+function mergeSort(array &$arr, bool $type = true) : void
+{
+	if ($type)
+	{
+		mergeSortIterative($arr);
+	}
+	else
+	{
+		mergeSortRecursive($arr, 0, count($arr));
+	}
+}
+
+
 // Массив рекурсивно делится пополам,
 // отсортированные половины сливаются функцией merge,
 // создающей отсортированный массив из двух отсортированных массивов.
 // $left - первый индекс массива,
 // $right - кол-во элементов в массиве (последний индекс + 1).
-function mergeSort(array &$arr, int $left, int $right)
+function mergeSortRecursive(array &$arr, int $left, int $right)
 {
 	if ($right - $left <= 1)
 	{
 		return;
 	}
 	$mid = ceil(($left + $right) / 2);
-	mergeSort($arr, $left, $mid);
-	mergeSort($arr, $mid, $right);
+	mergeSortRecursive($arr, $left, $mid);
+	mergeSortRecursive($arr, $mid, $right);
 	merge($arr, $left, $mid, $right);
 }
 
@@ -61,4 +75,22 @@ function merge(array &$arr, int $left, int $mid, int $right)
 		$arr[$left+$i] = $result[$i];
 	}
 
+}
+
+function mergeSortIterative(array &$arr) : array
+{
+	$mainLen = count($arr);
+	for ($subArrLen = 1; $subArrLen <= $mainLen; $subArrLen *= 2)
+	{
+		$it = 0;
+		for (; $it + $subArrLen <= $mainLen; $it += $subArrLen)
+		{
+			merge($arr, $it, ceil((2*$it + $subArrLen) / 2), $it+$subArrLen);
+		}
+		if ($it < $mainLen)
+		{
+			merge($arr, $it - $subArrLen, $it, $mainLen);
+		}
+	}
+	return $arr;
 }
