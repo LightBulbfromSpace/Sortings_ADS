@@ -10,13 +10,13 @@ require_once ROOT . '/boot.php';
 // $right - кол-во элементов в массиве (последний индекс + 1).
 function mergeSort(array &$arr, int $left, int $right)
 {
-	if ($left + 1 >= $right)
+	if ($right - $left <= 1)
 	{
 		return;
 	}
 	$mid = ceil(($left + $right) / 2);
 	mergeSort($arr, $left, $mid);
-	mergeSort($arr, $mid + 1, $right);
+	mergeSort($arr, $mid, $right);
 	merge($arr, $left, $mid, $right);
 }
 
