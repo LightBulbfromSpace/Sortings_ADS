@@ -14,7 +14,8 @@ function main()
 		//mergeSort($arr, true);
 		//quickSort($arr, 0, count($arr) - 1, true);
 		//$arr = CountingSort($arr);
-		BucketSort($arr);
+		//BucketSort($arr);
+		BubbleSort($arr);
 		echo'<pre>';
 		var_dump($arr);
 		echo'</pre>';
