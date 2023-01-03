@@ -1,4 +1,4 @@
-package structures
+package tree
 
 type TreeNode struct {
 	Val   *int

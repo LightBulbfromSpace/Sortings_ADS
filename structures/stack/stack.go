@@ -1,6 +1,9 @@
-package structures
+package stack
 
-import "errors"
+import (
+	"errors"
+	"github.com/LightBulbfromSpace/Labs_AlgorithmsAndDataStructure/structures"
+)
 
 type Stack[T any] struct {
 	data       []T
@@ -18,7 +21,7 @@ func (s *Stack[T]) Push(elem T) {
 
 func (s *Stack[T]) Pop() (T, error) {
 	if s.numOfItems == 0 {
-		return getZero[T](), errors.New("stack is empty")
+		return structures.getZero[T](), errors.New("stack is empty")
 	}
 	s.numOfItems--
 	elem := s.data[s.numOfItems]
@@ -30,7 +33,7 @@ func (s *Stack[T]) GetValueOfLastElement() (T, error) {
 	if s.numOfItems != 0 {
 		return s.data[s.numOfItems-1], nil
 	}
-	return getZero[T](), errors.New("stack is empty")
+	return structures.getZero[T](), errors.New("stack is empty")
 }
 
 type OperatorsStack struct {

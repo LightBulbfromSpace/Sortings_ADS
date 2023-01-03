@@ -1,4 +1,4 @@
-package tree_lab
+package tree
 
 import (
 	"labs/structures"
