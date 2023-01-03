@@ -1,3 +1,3 @@
-module github.com/LightBulbfromSpace/labs/structures
+module github.com/LightBulbfromSpace/Labs_AlgorithmsAndDataStructure/structures
 
 go 1.18

@@ -1,4 +1,4 @@
-module github.com/LightBulbfromSpace/labs
+module github.com/LightBulbfromSpace/Labs_AlgorithmsAndDataStructure
 
 go 1.18
 
