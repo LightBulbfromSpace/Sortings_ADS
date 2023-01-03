@@ -1,4 +1,4 @@
-module labs
+module github.com/LightBulbfromSpace/labs
 
 go 1.18
 
