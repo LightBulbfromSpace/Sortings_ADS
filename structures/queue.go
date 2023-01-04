@@ -1,6 +1,8 @@
 package structures
 
-import "errors"
+import (
+	"errors"
+)
 
 type Queue[T any] struct {
 	data []T
@@ -9,35 +11,34 @@ type Queue[T any] struct {
 }
 
 func (q *Queue[T]) Enqueue(elem T) {
-	if len(q.data) == 0 {
-		q.data = append(q.data, elem, getZero[T]())
-		q.tail++
-		return
+	if len(q.data) == q.tail && q.head != 0 {
+		q.tail = 0
 	}
-	if q.tail == len(q.data)-1 {
-		if q.head == 0 {
-			q.data[q.tail] = elem
-			q.data = append(q.data, getZero[T]())
-			q.tail++
-		} else {
-			q.data[q.tail] = elem
-			q.tail = 1
+	if len(q.data) == q.tail || q.head-1 == q.tail {
+		q.data = append(q.data, getZero[T]())
+		if q.head != 0 {
+			for i := len(q.data) - 1; i >= q.head; i-- {
+				q.data[i] = q.data[i-1]
+			}
+			q.tail %= len(q.data) - 1
+			q.head++
 		}
-	} else {
-		q.data[q.tail] = elem
-		q.tail++
 	}
+	q.data[q.tail] = elem
+	q.tail++
 }
 
 func (q *Queue[T]) Dequele() (T, error) {
 	if q.head == q.tail {
+		q.head, q.tail = 0, 0
 		return getZero[T](), errors.New("underflow")
 	}
-	elem := q.data[q.head]
-	if q.head == len(q.data)-1 {
+
+	if q.head == len(q.data) {
 		q.head = 0
-	} else {
-		q.head++
 	}
+	elem := q.data[q.head]
+	q.head++
+
 	return elem, nil
 }
