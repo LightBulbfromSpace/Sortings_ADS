@@ -42,3 +42,7 @@ func (q *Queue[T]) Dequele() (T, error) {
 
 	return elem, nil
 }
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.tail == q.head
+}
