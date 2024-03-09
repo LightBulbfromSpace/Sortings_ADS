@@ -2,8 +2,8 @@ package tree_lab
 
 import (
 	"fmt"
+	"github.com/LightBulbfromSpace/Sortings_ADS/structures"
 	"github.com/stretchr/testify/assert"
-	tree_lab "labs/lab15"
 	"testing"
 )
 
@@ -46,7 +46,7 @@ func TestPreorderTraversalStack(t *testing.T) {
 	}
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("test #%d for %v", i+1, tc.expected), func(t *testing.T) {
-			tree, _ := tree_lab.InputTreeCLI(tc.tree)
+			tree, _ := structures.InputTreeCLI(tc.tree)
 			got := PreorderTraversalStack(tree)
 			assert.Equal(t, tc.expected, got)
 		})

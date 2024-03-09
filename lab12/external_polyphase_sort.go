@@ -10,7 +10,8 @@ import (
 	"time"
 )
 
-// Принцип работы ExternalPolyphaseSort: вводится максимально доступная
+// ExternalPolyPhaseSort
+// Принцип работы ExternalPolyPhaseSort: вводится максимально доступная
 // величина массива в качестве второго аргумента. Из файла с неотсортированными
 // числами считываются куски не длиннее maxSeqInRAM, преобразовываются в числа,
 // сортируются с помощью QuickSort. Каждая из последовательностей записывается в
@@ -18,7 +19,7 @@ import (
 // Далее эти файлы постепенно сливаются в один с помощью mergeSortedSequencesInFiles
 // (с каждым проходом количество временных файлов уменьшается в 2 раза),
 // пока не останется один файл с результатом сортировки.
-func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, error) {
+func ExternalPolyPhaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, error) {
 
 	var tmpFiles []*os.File
 
@@ -41,7 +42,10 @@ func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, err
 		if err != nil {
 			return nil, err
 		}
-		f.Seek(0, 0)
+		_, err = f.Seek(0, 0)
+		if err != nil {
+			return nil, err
+		}
 		tmpFiles = append(tmpFiles, f)
 	}
 
@@ -82,7 +86,10 @@ func ExternalPolyphaseSort(initialFile *os.File, maxSeqInRAM int) (*os.File, err
 			if err != nil {
 				return nil, err
 			}
-			newFile.Seek(0, 0)
+			_, err = newFile.Seek(0, 0)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		err = deleteFiles(tmpFiles)
@@ -150,7 +157,10 @@ func readMaxAmountOfNums(file *os.File, maxLength int) (*[]int, error) {
 			return &nums, err
 		}
 		if n > maxLength {
-			file.Seek(-int64(nc), 1)
+			_, err = file.Seek(-int64(nc), 1)
+			if err != nil {
+				return nil, err
+			}
 			break
 		}
 		if num != nil {
@@ -167,16 +177,22 @@ func createTmpFileName() string {
 }
 
 // mergeSortedSequencesInFiles merges two files in one
-// with sorted data, uses principes of MergeSort
+// with sorted data, uses principles of MergeSort
 func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, error) {
-	inputFile1.Seek(0, 0)
-	inputFile2.Seek(0, 0)
+	_, err := inputFile1.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
+	_, err = inputFile2.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
 	outputFile, err := createTemporaryFile()
 	if err != nil {
 		return nil, err
 	}
 	var read1Common, read2Common int
-	for true {
+	for {
 		num1, read1, e := getNum(inputFile1)
 		read1Common += read1
 
@@ -186,8 +202,14 @@ func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, err
 		if num1 == nil {
 			inputFile2Info, _ := inputFile2.Stat()
 			buffer := make([]byte, inputFile2Info.Size()-int64(read2Common))
-			inputFile2.Read(buffer)
-			outputFile.Write(buffer)
+			_, err = inputFile2.Read(buffer)
+			if err != nil {
+				return nil, err
+			}
+			_, err = outputFile.Write(buffer)
+			if err != nil {
+				return nil, err
+			}
 			break
 		}
 
@@ -199,27 +221,48 @@ func mergeSortedSequencesInFiles(inputFile1, inputFile2 *os.File) (*os.File, err
 		}
 		if num2 == nil {
 			read1Common -= read1
-			inputFile1.Seek(-int64(read1), 1)
+			_, err = inputFile1.Seek(-int64(read1), 1)
+			if err != nil {
+				return nil, err
+			}
 			inputFile1Info, _ := inputFile1.Stat()
 			buffer := make([]byte, inputFile1Info.Size()-int64(read1Common))
-			inputFile1.Read(buffer)
-			outputFile.Write(buffer)
+			_, err = inputFile1.Read(buffer)
+			if err != nil {
+				return nil, err
+			}
+			_, err = outputFile.Write(buffer)
+			if err != nil {
+				return nil, err
+			}
 			break
 		}
 
 		var num int
 		if *num1 < *num2 {
 			num = *num1
-			inputFile2.Seek(-int64(read2), 1)
+			_, err = inputFile2.Seek(-int64(read2), 1)
+			if err != nil {
+				return nil, err
+			}
 			read2Common -= read2
 		} else {
 			num = *num2
-			inputFile1.Seek(-int64(read1), 1)
+			_, err = inputFile1.Seek(-int64(read1), 1)
+			if err != nil {
+				return nil, err
+			}
 			read1Common -= read1
 		}
-		outputFile.Write(intsToBytesSlice(num))
+		_, err = outputFile.Write(intsToBytesSlice(num))
+		if err != nil {
+			return nil, err
+		}
 	}
-	outputFile.Seek(0, 0)
+	_, err = outputFile.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
 	return outputFile, nil
 }
 
@@ -298,7 +341,10 @@ func readSequence(file *os.File) (seq []int, n int, err error) {
 		}
 		if nc > 0 && num != nil {
 			if seq[len(seq)-1] > *num {
-				file.Seek(-int64(nc), 1)
+				_, err = file.Seek(-int64(nc), 1)
+				if err != nil {
+					return nil, 0, err
+				}
 				n -= nc
 				break
 			}

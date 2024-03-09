@@ -1,7 +1,7 @@
 package structures
 
 import (
-	labtest "github.com/LightBulbfromSpace/Labs_AlgorithmsAndDataStructure/testing"
+	labtest "github.com/LightBulbfromSpace/Sortings_ADS/testing"
 	"testing"
 )
 

@@ -17,7 +17,7 @@ type testFilesystem struct {
 	result *file
 }
 
-func TestExternalPolyphaseSort(t *testing.T) {
+func TestExternalPolyPhaseSort(t *testing.T) {
 
 	cases := []struct {
 		initialFile file
@@ -41,19 +41,25 @@ func TestExternalPolyphaseSort(t *testing.T) {
 
 			defer rm()
 
-			got, err := ExternalPolyphaseSort(tmp, tc.maxMemory)
+			got, err := ExternalPolyPhaseSort(tmp, tc.maxMemory)
 			if err != nil {
 				t.Errorf("unexpected error: %q", err)
 			}
 
 			buffer := make([]byte, len(tc.expected))
-			got.Seek(0, 0)
+			_, err = got.Seek(0, 0)
+			if err != nil {
+				t.Errorf("unexpected error: %q", err)
+			}
 			_, err = got.Read(buffer)
 			assert.NoError(t, err)
 
 			assert.Equal(t, tc.expected, string(buffer))
 
-			os.Remove(got.Name())
+			err = os.Remove(got.Name())
+			if err != nil {
+				t.Errorf("unexpected error: %q", err)
+			}
 		})
 	}
 }
@@ -132,36 +138,39 @@ func TestReadMaxAmountOfNums(t *testing.T) {
 		assert.NoError(t, err)
 		defer rm()
 
-		readMaxAmountOfNums(tmp, cases[0].maxMemory)
+		_, err = readMaxAmountOfNums(tmp, cases[0].maxMemory)
+		if err != nil {
+			t.Errorf("unexpected error: %q", err)
+		}
 		nums, _ := readMaxAmountOfNums(tmp, 18)
 
 		assert.Equal(t, []int{85, 2, 43}, *nums)
 	})
 }
 
-func TestMergeSortedsequencesInFiles(t *testing.T) {
+func TestMergeSortedSequencesInFiles(t *testing.T) {
 	cases := []*testFilesystem{
 		{
 			[]*file{
-				&file{"a.dat", "1 2 4 43 85 87"},
-				&file{"b.dat", "1 7 34 2347 3342"},
-				&file{"c.dat", ""},
+				{"a.dat", "1 2 4 43 85 87"},
+				{"b.dat", "1 7 34 2347 3342"},
+				{"c.dat", ""},
 			},
 			&file{"c.dat", "1 1 2 4 7 34 43 85 87 2347 3342"},
 		},
 		{
 			[]*file{
-				&file{"a.dat", "1 2 4 43 85 87 234219 699999 "},
-				&file{"b.dat", "1 7 34 2347 3342 "},
-				&file{"c.dat", ""},
+				{"a.dat", "1 2 4 43 85 87 234219 699999 "},
+				{"b.dat", "1 7 34 2347 3342 "},
+				{"c.dat", ""},
 			},
 			&file{"c.dat", "1 1 2 4 7 34 43 85 87 2347 3342 234219 699999"},
 		},
 		{
 			[]*file{
-				&file{"a.dat", "1 2 4 43 87 699999 "},
-				&file{"b.dat", "1 7 34 2347 3342 943843"},
-				&file{"c.dat", ""},
+				{"a.dat", "1 2 4 43 87 699999 "},
+				{"b.dat", "1 7 34 2347 3342 943843"},
+				{"c.dat", ""},
 			},
 			&file{"c.dat", "1 1 2 4 7 34 43 87 2347 3342 699999 943843"},
 		},
@@ -175,8 +184,16 @@ func TestMergeSortedsequencesInFiles(t *testing.T) {
 			assert.NoError(t, err)
 
 			buffer := make([]byte, len(fs.result.data))
-			got.Seek(0, 0)
-			got.Read(buffer)
+
+			_, err = got.Seek(0, 0)
+			if err != nil {
+				t.Errorf("unexpected error: %q", err)
+			}
+
+			_, err = got.Read(buffer)
+			if err != nil {
+				t.Errorf("unexpected error: %q", err)
+			}
 
 			assert.Equal(t, fs.result.data, string(buffer))
 
@@ -184,7 +201,10 @@ func TestMergeSortedsequencesInFiles(t *testing.T) {
 				rm()
 			}
 
-			os.Remove(got.Name())
+			err = os.Remove(got.Name())
+			if err != nil {
+				t.Errorf("unexpected error: %q", err)
+			}
 		})
 	}
 }
@@ -245,7 +265,10 @@ func TestReadSequence(t *testing.T) {
 	t.Run("second read from file", func(t *testing.T) {
 		tmp, err := os.Open("a.dat")
 		assert.NoError(t, err)
-		readSequence(tmp)
+		_, _, err = readSequence(tmp)
+		if err != nil {
+			t.Errorf("unexpected error: %q", err)
+		}
 
 		seq, _, err := readSequence(tmp)
 		if err != nil && err != io.EOF {
@@ -307,11 +330,17 @@ func createTmpFile(fl *file) (tmp *os.File, err error, delete func()) {
 		return nil, err, nil
 	}
 	delete = func() {
-		os.Remove(fl.name)
+		err = os.Remove(fl.name)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	_, err = tmp.Write([]byte(fl.data))
-	tmp.Seek(0, 0)
+	if err != nil {
+		return nil, err, nil
+	}
+	_, err = tmp.Seek(0, 0)
 	if err != nil {
 		return nil, err, nil
 	}

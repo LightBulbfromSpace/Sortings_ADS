@@ -2,7 +2,7 @@ package structures
 
 import (
 	"fmt"
-	labtest "github.com/LightBulbfromSpace/Labs_AlgorithmsAndDataStructure/testing"
+	labtest "github.com/LightBulbfromSpace/Sortings_ADS/testing"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

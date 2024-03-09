@@ -4,8 +4,8 @@ import (
 	"math"
 )
 
-func RadixSort(input []int, lenght, rang int) []int {
-	for i := 1; i <= lenght; i++ {
+func RadixSort(input []int, length, rang int) []int {
+	for i := 1; i <= length; i++ {
 		lists := make([][]int, rang)
 		for _, num := range input {
 			j := num % int(math.Pow10(i)) / int(math.Pow10(i-1))

@@ -6,8 +6,8 @@ import (
 
 type Queue[T any] struct {
 	data []T
-	head int // points to firts element in Queue to Out
-	tail int // points to first free place after last element in Quele
+	head int // points to first element in Queue to Out
+	tail int // points to first free place after last element in Queue
 }
 
 func (q *Queue[T]) Enqueue(elem T) {

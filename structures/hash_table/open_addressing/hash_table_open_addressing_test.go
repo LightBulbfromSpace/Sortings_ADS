@@ -1,8 +1,8 @@
 package open_addressing
 
 import (
+	labtest "github.com/LightBulbfromSpace/Sortings_ADS/testing"
 	"github.com/stretchr/testify/assert"
-	test "labs/testing"
 	"testing"
 )
 
@@ -19,11 +19,11 @@ func TestHashTable(t *testing.T) {
 		"kwjehfowehf^*H%^GU",
 		"илывлды",
 	}
-	test.WalkSlice[string](cases, func(elem string) {
+	labtest.WalkSlice[string](cases, func(elem string) {
 		found := hashTable.Search(elem)
 		assert.False(t, found)
 	})
-	test.WalkSlice[string](cases, func(elem string) {
+	labtest.WalkSlice[string](cases, func(elem string) {
 		err := hashTable.Add(elem)
 		//fmt.Printf("%v\n", hashTable)
 		//for i := 0; i < hashTable.size; i++ {
@@ -32,14 +32,14 @@ func TestHashTable(t *testing.T) {
 		//}
 		assert.NoError(t, err, elem)
 	})
-	test.WalkSlice[string](cases, func(elem string) {
+	labtest.WalkSlice[string](cases, func(elem string) {
 		found := hashTable.Search(elem)
 		assert.True(t, found)
 	})
-	test.WalkSlice[string](cases, func(elem string) {
+	labtest.WalkSlice[string](cases, func(elem string) {
 		hashTable.Delete(elem)
 	})
-	test.WalkSlice[string](cases, func(elem string) {
+	labtest.WalkSlice[string](cases, func(elem string) {
 		found := hashTable.Search(elem)
 		assert.False(t, found)
 	})
@@ -47,7 +47,11 @@ func TestHashTable(t *testing.T) {
 
 func TestResize(t *testing.T) {
 	oldSize := hashTable.size
-	hashTable.Resize(2.5)
+	err := hashTable.Resize(2.5)
+	if err != nil {
+		t.Errorf("unexpected error: %q", err)
+	}
+
 	assert.Equal(t, int(float32(oldSize)*2.5), hashTable.size)
 }
 
@@ -61,7 +65,7 @@ func TestImplicitResizing(t *testing.T) {
 		"kwjehfowehf^*H%^GU",
 		"илывлды",
 	}
-	test.WalkSlice(cases, func(elem string) {
+	labtest.WalkSlice(cases, func(elem string) {
 		err := tbl.Add(elem)
 		assert.NoError(t, err, elem)
 	})

@@ -2,8 +2,8 @@ package separate_chaining
 
 import (
 	"fmt"
+	labtest "github.com/LightBulbfromSpace/Sortings_ADS/testing"
 	"github.com/stretchr/testify/assert"
-	test "labs/testing"
 	"testing"
 )
 
@@ -26,7 +26,7 @@ var cases = []_case{
 
 func TestHashTableAdd(t *testing.T) {
 	t.Run("call Add() on non-existing in table elements", func(t *testing.T) {
-		test.WalkSlice(cases, func(elem _case) {
+		labtest.WalkSlice(cases, func(elem _case) {
 			err := tbl.Add(elem.key, elem.data)
 			assert.NoError(t, err)
 		})
@@ -55,7 +55,7 @@ func TestHashTableAdd(t *testing.T) {
 
 func TestHashTableSearch(t *testing.T) {
 	//printAllChains[int](tbl)
-	test.WalkSlice(cases, func(elem _case) {
+	labtest.WalkSlice(cases, func(elem _case) {
 		data, found := tbl.Search(elem.key)
 		assert.True(t, found, elem.key)
 		rightData := false
@@ -70,7 +70,7 @@ func TestHashTableSearch(t *testing.T) {
 
 func TestHashTableUpdate(t *testing.T) {
 	tbl := tbl
-	test.WalkSlice(cases, func(elem _case) {
+	labtest.WalkSlice(cases, func(elem _case) {
 		err := tbl.Update(elem.key, 0)
 		assert.NoError(t, err)
 	})
@@ -82,7 +82,7 @@ func TestHashTableUpdate(t *testing.T) {
 }
 
 func TestHashTableDelete(t *testing.T) {
-	test.WalkSlice(cases, func(elem _case) {
+	labtest.WalkSlice(cases, func(elem _case) {
 		found := tbl.Delete(elem.key)
 		assert.True(t, found)
 	})

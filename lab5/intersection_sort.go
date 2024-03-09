@@ -1,8 +1,8 @@
 package insertion_sort
 
 func InsertionSort(arr []int) []int {
-	lenght := len(arr)
-	for i := 1; i < lenght; i++ {
+	length := len(arr)
+	for i := 1; i < length; i++ {
 		j := i
 		for j > 0 {
 			if arr[j-1] > arr[j] {
