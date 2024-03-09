@@ -2,7 +2,7 @@ package lab1_v1
 
 import (
 	"fmt"
-	labtest "labs"
+	labtest "github.com/LightBulbfromSpace/Sortings_ADS/testing"
 	"testing"
 )
 

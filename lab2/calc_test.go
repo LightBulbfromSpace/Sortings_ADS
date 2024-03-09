@@ -2,8 +2,8 @@ package calc_math_exp
 
 import (
 	"fmt"
+	labtest "github.com/LightBulbfromSpace/Sortings_ADS/testing"
 	"github.com/stretchr/testify/assert"
-	test "labs/testing"
 	"strings"
 	"testing"
 )
@@ -49,7 +49,7 @@ func TestCalcPostfixNotation(t *testing.T) {
 			got, err := CalcPostfixNotation(tc.exp)
 			if tc.valid {
 				assert.NoError(t, err)
-				test.AssertEqualFloat64(t, got, tc.result)
+				labtest.AssertEqualFloat64(t, got, tc.result)
 			} else {
 				assert.Error(t, err)
 			}
