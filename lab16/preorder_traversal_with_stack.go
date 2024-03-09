@@ -2,7 +2,7 @@ package tree_lab
 
 import (
 	"fmt"
-	"labs/structures"
+	"github.com/LightBulbfromSpace/Sortings_ADS/structures"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ func PreorderTraversalStack(root *structures.TreeNode) string {
 	stack := structures.Stack[*structures.TreeNode]{}
 	for root != nil || !stack.IsEmpty() {
 		if !stack.IsEmpty() {
-			root = stack.Pop()
+			root, _ = stack.Pop()
 		}
 		for root != nil {
 			if root.Right != nil {

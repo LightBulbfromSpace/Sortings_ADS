@@ -1,6 +1,6 @@
 package lab1_v1
 
-import "labs/structures"
+import "github.com/LightBulbfromSpace/Sortings_ADS/structures"
 
 func ParenthesesCheck(exp string) bool {
 	stack := &structures.BracketsStack{}

@@ -1,7 +1,9 @@
 package main
 
-import solution_search "labs/lab3"
+import (
+	solutionSearch "github.com/LightBulbfromSpace/Sortings_ADS/lab3"
+)
 
 func main() {
-	solution_search.SimpleMultipliers(1000000000)
+	solutionSearch.SimpleMultipliers(1000000000)
 }

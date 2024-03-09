@@ -1,8 +1,8 @@
 package tree_lab
 
-import "labs/structures"
+import "github.com/LightBulbfromSpace/Sortings_ADS/structures"
 
-func postorderTraversalIteravite(root *structures.TreeNode) []int {
+func postorderTraversalIterative(root *structures.TreeNode) []int {
 	if root == nil {
 		return nil
 	}
@@ -10,7 +10,7 @@ func postorderTraversalIteravite(root *structures.TreeNode) []int {
 	var res []int
 	initialNode := root
 
-	for true {
+	for {
 		if initialNode.Left == nil && initialNode.Right == nil {
 			res = append(res, *root.Val)
 			break
@@ -30,10 +30,12 @@ func postorderTraversalIteravite(root *structures.TreeNode) []int {
 
 		res = append(res, *root.Val)
 
-		if previosRoot.Left != nil {
-			previosRoot.Left = nil
-		} else {
-			previosRoot.Right = nil
+		if previosRoot != nil {
+			if previosRoot.Left != nil {
+				previosRoot.Left = nil
+			} else {
+				previosRoot.Right = nil
+			}
 		}
 
 		root = initialNode

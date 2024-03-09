@@ -2,7 +2,7 @@ package calc_math_exp
 
 import (
 	"errors"
-	"labs/structures"
+	"github.com/LightBulbfromSpace/Sortings_ADS/structures"
 	"math"
 	"strconv"
 	"strings"

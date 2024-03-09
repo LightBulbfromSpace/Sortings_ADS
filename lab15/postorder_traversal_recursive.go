@@ -1,15 +1,15 @@
 package tree_lab
 
-import "labs/structures"
+import "github.com/LightBulbfromSpace/Sortings_ADS/structures"
 
-func postorderTraversalRecusive(root *structures.TreeNode) []int {
+func postorderTraversalRecursive(root *structures.TreeNode) []int {
 	var res []int
 	if root == nil {
 		return res
 	}
 
-	res = append(res, postorderTraversalRecusive(root.Left)...)
-	res = append(res, postorderTraversalRecusive(root.Right)...)
+	res = append(res, postorderTraversalRecursive(root.Left)...)
+	res = append(res, postorderTraversalRecursive(root.Right)...)
 	res = append(res, *root.Val)
 
 	return res

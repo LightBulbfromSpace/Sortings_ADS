@@ -1,7 +1,7 @@
 package tree_lab
 
 import (
-	"labs/structures"
+	"github.com/LightBulbfromSpace/Sortings_ADS/structures"
 )
 
 func inorderTraversalIterative(root *structures.TreeNode) []int {
@@ -11,9 +11,9 @@ func inorderTraversalIterative(root *structures.TreeNode) []int {
 
 	var res []int
 	initialNode := root
-	previosRoot := root
+	previousRoot := root
 
-	for true {
+	for {
 
 		if initialNode.Left == nil && initialNode.Right == nil {
 			res = append(res, *root.Val)
@@ -21,7 +21,7 @@ func inorderTraversalIterative(root *structures.TreeNode) []int {
 		}
 
 		for root.Left != nil {
-			previosRoot = root
+			previousRoot = root
 			root = root.Left
 		}
 
@@ -31,10 +31,10 @@ func inorderTraversalIterative(root *structures.TreeNode) []int {
 			if root == initialNode {
 				initialNode = root.Right
 			} else {
-				previosRoot.Left = root.Right
+				previousRoot.Left = root.Right
 			}
 		} else {
-			previosRoot.Left = nil
+			previousRoot.Left = nil
 		}
 		root = initialNode
 	}

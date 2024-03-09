@@ -1,10 +1,10 @@
-module github.com/LightBulbfromSpace/Labs_AlgorithmsAndDataStructure/structures
+module github.com/LightBulbfromSpace/Sortings_ADS/structures
 
 go 1.18
 
 require (
 	github.com/LightBulbfromSpace/Labs_AlgorithmsAndDataStructure v0.0.0-20230103225738-1c0540e30a56
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.9.0
 )
 
 require (

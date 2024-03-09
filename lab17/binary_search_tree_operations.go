@@ -1,7 +1,7 @@
 package BST
 
 import (
-	"labs/structures"
+	"github.com/LightBulbfromSpace/Sortings_ADS/structures"
 )
 
 func Search(node *structures.TreeNode, elem int) (*structures.TreeNode, bool) {

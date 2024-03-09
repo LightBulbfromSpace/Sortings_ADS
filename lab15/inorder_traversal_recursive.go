@@ -1,6 +1,6 @@
 package tree_lab
 
-import "labs/structures"
+import "github.com/LightBulbfromSpace/Sortings_ADS/structures"
 
 func inorderTraversalRecursive(root *structures.TreeNode) []int {
 	var res []int

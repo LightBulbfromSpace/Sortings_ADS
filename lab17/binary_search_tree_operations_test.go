@@ -2,10 +2,9 @@ package BST
 
 import (
 	"fmt"
+	"github.com/LightBulbfromSpace/Sortings_ADS/structures"
+	labtest "github.com/LightBulbfromSpace/Sortings_ADS/testing"
 	"github.com/stretchr/testify/assert"
-	tree_lab "labs/lab15"
-	"labs/structures"
-	labtest "labs/testing"
 	"testing"
 	"time"
 )
@@ -24,7 +23,7 @@ func TestSearch(t *testing.T) {
 	}
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("test #%d for %v", i+1, tc.initial), func(t *testing.T) {
-			got, err := tree_lab.InputTreeCLI(tc.initial)
+			got, err := structures.InputTreeCLI(tc.initial)
 			assert.NoError(t, err)
 			resultNode := new(structures.TreeNode)
 			var found bool
@@ -52,12 +51,12 @@ func TestAdd(t *testing.T) {
 	}
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("test #%d for %v", i+1, tc.expected), func(t *testing.T) {
-			got, err := tree_lab.InputTreeCLI(tc.initial)
+			got, err := structures.InputTreeCLI(tc.initial)
 			assert.NoError(t, err)
 			labtest.FailAfter(t, 500*time.Millisecond, func() {
 				Add(got, tc.elem)
 			})
-			assert.Equal(t, tc.expected, tree_lab.OutputTreeCLI(got))
+			assert.Equal(t, tc.expected, structures.OutputTreeCLI(got))
 		})
 	}
 }
@@ -77,12 +76,12 @@ func TestDelete(t *testing.T) {
 	}
 	for i, tc := range cases {
 		t.Run(fmt.Sprintf("test #%d for %v", i+1, tc.expected), func(t *testing.T) {
-			got, err := tree_lab.InputTreeCLI(tc.initial)
+			got, err := structures.InputTreeCLI(tc.initial)
 			assert.NoError(t, err)
 			labtest.FailAfter(t, 500*time.Millisecond, func() {
 				Delete(got, tc.elem)
 			})
-			assert.Equal(t, tc.expected, tree_lab.OutputTreeCLI(got))
+			assert.Equal(t, tc.expected, structures.OutputTreeCLI(got))
 		})
 	}
 }
